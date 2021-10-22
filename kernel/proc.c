@@ -297,6 +297,9 @@ fork(void)
 
   release(&np->lock);
 
+  //trace
+  np->mask = p->mask;
+
   return pid;
 }
 
