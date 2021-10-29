@@ -1,6 +1,10 @@
 kernel/proc.c
+kernel/proc.h
 user/user.h
 user/usys.pl
 kernel/syscall.h
 kernel/sysproc.c
 kernel/syscall.c
+
+kalloc.c
+defs.h

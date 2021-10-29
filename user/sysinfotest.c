@@ -160,5 +160,11 @@ main(int argc, char *argv[])
   testproc();
   testfd();
   printf("sysinfotest: OK\n");
+/*
+  struct sysinfo info;
+  printf("%p\n",&info);
+  info.freefd=222;
+  sinfo(&info);
+  */
   exit(0);
 }

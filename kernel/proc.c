@@ -696,3 +696,23 @@ procdump(void)
     printf("\n");
   }
 }
+
+int freeProc(void){
+    int cnt=0;
+    struct proc *p;
+    for(p = proc; p < &proc[NPROC]; p++){
+      if(p->state == UNUSED)
+        cnt++;
+    }
+    return cnt;
+}
+
+int freeFD(void){
+    int cnt=0;
+    struct proc *p = myproc();
+    for(int i=0;i<NOFILE;i++){
+      if(p->ofile[i]==0)
+      cnt++;
+    }
+    return cnt;
+}

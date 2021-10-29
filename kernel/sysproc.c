@@ -1,11 +1,14 @@
 #include "types.h"
 #include "riscv.h"
 #include "defs.h"
-#include "date.h"
 #include "param.h"
-#include "memlayout.h"
+#include "fs.h"
 #include "spinlock.h"
+#include "sleeplock.h"
+#include "file.h"
+#include "stat.h"
 #include "proc.h"
+#include "sysinfo.h"
 
 uint64
 sys_exit(void)
@@ -103,13 +106,28 @@ sys_trace(void)
 
   if(argint(0, &mask) < 0)
     return -1;
-  
-  //printf("%d\n",mask);
 
   struct proc *myProc=myproc();
   myProc->mask=mask;
-  //printf("%s\n",myProc->name);
+  
+  return 0;
+}
 
+uint64
+sys_sysinfo(void)
+{
+  struct sysinfo si;
+  struct proc *p = myproc();
+  uint64 zzz;
 
+  si.freemem = freemem();
+  si.nproc = freeProc();
+  si.freefd = freeFD();
+  if(argaddr(0, &zzz) < 0)
+    return -1;
+
+  if(copyout(p->pagetable, zzz, (char *)&si, sizeof(si)) < 0)
+    return -1;
+  
   return 0;
 }
