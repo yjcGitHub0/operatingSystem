@@ -15,10 +15,16 @@ extern char etext[];  // kernel.ld sets this to end of kernel code.
 
 extern char trampoline[]; // trampoline.S
 
+pagetable_t mykvminit(){
+  pagetable_t newPage = (pagetable_t) kalloc();
+  memset(newPage, 0, PGSIZE);
+  return newPage;
+}
+
 /*
  * create a direct-map page table for the kernel.
  */
-void
+void 
 kvminit()
 {
   kernel_pagetable = (pagetable_t) kalloc();
@@ -449,4 +455,29 @@ test_pagetable()
   uint64 satp = r_satp();
   uint64 gsatp = MAKE_SATP(kernel_pagetable);
   return satp != gsatp;
+}
+
+void vmprint(pagetable_t pgtbl){
+  printf("page table %p\n",pgtbl);
+  for(int i = 0; i < 512; i++){
+    pte_t pte = pgtbl[i];
+    if((pte & PTE_V)){
+      pagetable_t child = (pagetable_t)PTE2PA(pte);
+      printf("||%d: pte %p pa %p\n",i,pte,child);
+      for(int j=0;j<512;j++){
+        pte_t pte2 = child[j];
+        if((pte2 & PTE_V)){
+          pagetable_t child2 = (pagetable_t)PTE2PA(pte2);
+          printf("|| ||%d: pte %p pa %p\n",j,pte2,child2);
+          for(int k=0;k<512;k++){
+            pte_t pte3 = child2[k];
+            if((pte3 & PTE_V)){
+              pagetable_t child3 = (pagetable_t)PTE2PA(pte3);
+              printf("|| || ||%d: pte %p pa %p\n",k,pte3,child3);
+            }
+          }
+        }
+      }
+    }
+  }
 }

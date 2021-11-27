@@ -37,6 +37,7 @@ procinit(void)
       char *pa = kalloc();
       if(pa == 0)
         panic("kalloc");
+      p->pa=pa;
       uint64 va = KSTACK((int) (p - proc));
       kvmmap(va, (uint64)pa, PGSIZE, PTE_R | PTE_W);
       p->kstack = va;
@@ -93,7 +94,7 @@ static struct proc*
 allocproc(void)
 {
   struct proc *p;
-
+  printf("%s called\n", __func__);
   for(p = proc; p < &proc[NPROC]; p++) {
     acquire(&p->lock);
     if(p->state == UNUSED) {
@@ -126,6 +127,12 @@ found:
   memset(&p->context, 0, sizeof(p->context));
   p->context.ra = (uint64)forkret;
   p->context.sp = p->kstack + PGSIZE;
+
+  p->kpage = mykvminit();
+  //kvmmap((uint64)p->kpage, (uint64)p->kstack, PGSIZE, PTE_R | PTE_W);
+  
+  if(mappages(p->kpage, p->kstack, PGSIZE, (uint64)p->pa, PTE_R | PTE_W) != 0)
+    panic("kvmmap");
 
   return p;
 }
